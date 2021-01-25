@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Coinbase.BalanceMonitor.Infrastructure;
+using Coinbase.BalanceMonitor.Models;
 using Coinbase.BalanceMonitor.Models.ApiResponses;
 
 namespace Coinbase.BalanceMonitor.Clients
@@ -27,15 +30,37 @@ namespace Coinbase.BalanceMonitor.Clients
         {
             var random = new Random();
 
-            var message = new HttpRequestMessage(HttpMethod.Get, "/v2/accounts");
+            var balances = new List<CoinBalance>();
 
-            AddRequestHeaders(message);
+            PaginatedResponse<Account> data = null;
 
-            var response = await _client.SendAsync(message);
+            do
+            {
+                var message = new HttpRequestMessage(HttpMethod.Get, data?.Pagination?.NextUri ?? "/v2/accounts");
 
-            var stringData = await response.Content.ReadAsStringAsync();
+                AddRequestHeaders(message);
 
-            var data = JsonSerializer.Deserialize<PaginatedResponse<Account>>(stringData);
+                var response = await _client.SendAsync(message);
+
+                var stringData = await response.Content.ReadAsStringAsync();
+
+                data = JsonSerializer.Deserialize<PaginatedResponse<Account>>(stringData);
+
+                // ReSharper disable once PossibleNullReferenceException
+                foreach (var account in data.Data)
+                {
+                    var balance = decimal.Parse(account.Balance.Amount);
+
+                    if (balance > 0)
+                    {
+                        balances.Add(new CoinBalance
+                                     {
+                                         Balance = balance,
+                                         CoinType = account.Balance.Currency
+                                     });
+                    }
+                }
+            } while (! string.IsNullOrWhiteSpace(data.Pagination.NextUri));
 
             return random.Next(10000);
         }
@@ -49,13 +74,11 @@ namespace Coinbase.BalanceMonitor.Clients
 
             var bytes = Encoding.ASCII.GetBytes(toSign);
 
-            //using var hmacsha256 = new HMACSHA256(Convert.FromBase64String(AppSettings.Instance.ApiSecret));
             using var hmacsha256 = new HMACSHA256(Encoding.UTF8.GetBytes(AppSettings.Instance.ApiSecret));
 
             var hash = hmacsha256.ComputeHash(bytes);
 
             message.Headers.Add("CB-ACCESS-SIGN", BitConverter.ToString(hash).Replace("-", string.Empty).ToLower());
-            //message.Headers.Add("CB-ACCESS-SIGN", Convert.ToBase64String(hash));
             message.Headers.Add("CB-ACCESS-TIMESTAMP", timestamp);
         }
     }
