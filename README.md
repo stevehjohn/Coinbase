@@ -24,6 +24,6 @@ I won't provide binaries for this as given the sensitive nature of Coinbase API 
 
 I've configured mine to run on system start.
 
-I created a folder off of the root of `C:\` called `dotnet Apps`. Within there, I created a subfolder `Coinbase.BalanceMonitor`. In there, I put the output of a `Release` build, and sett the `appSettings.json` accordingly.
+I created a folder off of the root of `C:\` called `dotnet Apps`. Within there, I created a subfolder `Coinbase.BalanceMonitor`. In there, I put the output of a `Release` build, and set the `appSettings.json` accordingly.
 
 Then, pressed `Win + R` and typed `shell:startup` to open an explorer view of startup shortcuts. Finally, dragged a shortcut to the exe into that location. When dragging the exe, hold `ctrl` and `shift` to create a shortcut.
