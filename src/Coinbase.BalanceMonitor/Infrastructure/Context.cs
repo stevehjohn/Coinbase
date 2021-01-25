@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 using Coinbase.BalanceMonitor.Resources;
 using Coinbase.BalanceMonitor.Service;
 
@@ -36,7 +37,7 @@ namespace Coinbase.BalanceMonitor.Infrastructure
             _icon.Icon = Icons.up;
 
             // ReSharper disable once LocalizableElement
-            _icon.Text = $"£{balance / 100m:N2}";
+            _icon.Text = $"£{balance / 100m:N2} at {DateTime.Now:HH:mm}";
         }
 
         private void Down(int balance)
@@ -44,7 +45,7 @@ namespace Coinbase.BalanceMonitor.Infrastructure
             _icon.Icon = Icons.down;
 
             // ReSharper disable once LocalizableElement
-            _icon.Text = $"£{balance / 100m:N2}";
+            _icon.Text = $"£{balance / 100m:N2} at {DateTime.Now:HH:mm}";
         }
 
         private void Exit()
