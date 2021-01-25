@@ -35,7 +35,16 @@ namespace Coinbase.BalanceMonitor.Clients
 
             var exchangeRates = await GetExchangeRates();
 
-            return 0;
+            var balance = 0m;
+
+            foreach (var coinBalance in coinBalances)
+            {
+                var rate = exchangeRates[coinBalance.CoinType];
+
+                balance += coinBalance.Balance / rate;
+            }
+
+            return (int) Math.Floor(balance * 100);
         }
 
         private async Task<List<CoinBalance>> GetCoinBalances()
