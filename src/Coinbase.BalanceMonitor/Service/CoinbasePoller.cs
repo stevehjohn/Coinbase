@@ -61,8 +61,7 @@ namespace Coinbase.BalanceMonitor.Service
 
                 AppSettings.Instance.Save();
 
-                //Thread.Sleep(TimeSpan.FromMinutes(AppSettings.Instance.PollIntervalMinutes));
-                Thread.Sleep(TimeSpan.FromSeconds(60));
+                Thread.Sleep(TimeSpan.FromMinutes(AppSettings.Instance.PollIntervalMinutes));
             }
         }
     }

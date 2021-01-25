@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Coinbase.BalanceMonitor.Infrastructure;
 using Coinbase.BalanceMonitor.Models;
 using Coinbase.BalanceMonitor.Models.ApiResponses;
@@ -28,8 +31,15 @@ namespace Coinbase.BalanceMonitor.Clients
 
         public async Task<int> GetAccountBalance()
         {
-            var random = new Random();
+            var coinBalances = await GetCoinBalances();
 
+            var exchangeRates = await GetExchangeRates();
+
+            return 0;
+        }
+
+        private async Task<List<CoinBalance>> GetCoinBalances()
+        {
             var balances = new List<CoinBalance>();
 
             PaginatedResponse<Account> data = null;
@@ -60,9 +70,32 @@ namespace Coinbase.BalanceMonitor.Clients
                                      });
                     }
                 }
+
+                Thread.Sleep(500);
             } while (! string.IsNullOrWhiteSpace(data.Pagination.NextUri));
 
-            return random.Next(10000);
+            return balances;
+        }
+
+        private async Task<Dictionary<string, decimal>> GetExchangeRates()
+        {
+            var message = new HttpRequestMessage(HttpMethod.Get, "/v2/exchange-rates?currency=GBP");
+
+            var response = await _client.SendAsync(message);
+
+            var stringData = await response.Content.ReadAsStringAsync();
+
+            var data = JsonSerializer.Deserialize<DataResponse<RatesDictionary>>(stringData);
+
+            var rates = new Dictionary<string, decimal>();
+
+            // ReSharper disable once PossibleNullReferenceException
+            foreach (var rate in data.Data.Rates)
+            {
+                rates.Add(rate.Key, decimal.Parse(rate.Value));
+            }
+
+            return rates;
         }
 
         private void AddRequestHeaders(HttpRequestMessage message, string body = null)
