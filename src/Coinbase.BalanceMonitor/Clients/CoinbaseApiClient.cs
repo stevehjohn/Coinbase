@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Coinbase.BalanceMonitor.Infrastructure;
 using Coinbase.BalanceMonitor.Models;
 using Coinbase.BalanceMonitor.Models.ApiResponses;
@@ -107,7 +104,7 @@ namespace Coinbase.BalanceMonitor.Clients
             return rates;
         }
 
-        private void AddRequestHeaders(HttpRequestMessage message, string body = null)
+        private static void AddRequestHeaders(HttpRequestMessage message, string body = null)
         {
             var timestamp = $"{(long) DateTime.UtcNow.Subtract(DateTime.UnixEpoch).TotalSeconds}";
 

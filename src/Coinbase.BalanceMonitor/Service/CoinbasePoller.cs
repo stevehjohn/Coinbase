@@ -63,6 +63,7 @@ namespace Coinbase.BalanceMonitor.Service
 
                 Thread.Sleep(TimeSpan.FromMinutes(AppSettings.Instance.PollIntervalMinutes));
             }
+            // ReSharper disable once FunctionNeverReturns
         }
     }
 }
