@@ -2,8 +2,10 @@
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Coinbase.BalanceMonitor.Infrastructure;
+using Coinbase.BalanceMonitor.Models.ApiResponses;
 
 namespace Coinbase.BalanceMonitor.Clients
 {
@@ -25,13 +27,15 @@ namespace Coinbase.BalanceMonitor.Clients
         {
             var random = new Random();
 
-            var message = new HttpRequestMessage(HttpMethod.Get, "/v2/accounts?order=asc");
+            var message = new HttpRequestMessage(HttpMethod.Get, "/v2/accounts");
 
             AddRequestHeaders(message);
 
             var response = await _client.SendAsync(message);
 
-            var data = await response.Content.ReadAsStringAsync();
+            var stringData = await response.Content.ReadAsStringAsync();
+
+            var data = JsonSerializer.Deserialize<PaginatedResponse<Account>>(stringData);
 
             return random.Next(10000);
         }
