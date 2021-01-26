@@ -11,6 +11,8 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         private readonly CoinbasePoller _poller;
 
+        private int _previousBalance = 0;
+
         public Context()
         {
             var contextMenu = new ContextMenuStrip();
@@ -37,7 +39,7 @@ namespace Coinbase.BalanceMonitor.Infrastructure
             _icon.Icon = Icons.up;
 
             // ReSharper disable once LocalizableElement
-            _icon.Text = $"£{balance / 100m:N2} at {DateTime.Now:HH:mm}";
+            _icon.Text = $"£{AppSettings.Instance.BalanceHigh / 100m:N2}\r\n£{balance / 100m:N2} at {DateTime.Now:HH:mm}{Difference(balance)}\r\n£{AppSettings.Instance.BalanceLow / 100m:N2}";
         }
 
         private void Down(int balance)
@@ -45,7 +47,23 @@ namespace Coinbase.BalanceMonitor.Infrastructure
             _icon.Icon = Icons.down;
 
             // ReSharper disable once LocalizableElement
-            _icon.Text = $"£{balance / 100m:N2} at {DateTime.Now:HH:mm}";
+            _icon.Text = $"£{AppSettings.Instance.BalanceHigh / 100m:N2}\r\n£{balance / 100m:N2} at {DateTime.Now:HH:mm}{Difference(balance)}\r\n£{AppSettings.Instance.BalanceLow / 100m:N2}";
+        }
+
+        private string Difference(int balance)
+        {
+            if (_previousBalance == 0)
+            {
+                _previousBalance = balance;
+
+                return string.Empty;
+            }
+
+            var difference = balance - _previousBalance;
+
+            _previousBalance = balance;
+
+            return $" {(difference < 0 ? '-' : '+')}{difference / 100m:N2}";
         }
 
         private void Exit()

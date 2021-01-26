@@ -16,6 +16,10 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         public int PreviousBalance { get; set; }
 
+        public int BalanceHigh { get; set; }
+
+        public int BalanceLow { get; set; }
+
         public static AppSettings Instance => Lazy.Value;
 
         private static readonly Lazy<AppSettings> Lazy = new(GetAppSettings);

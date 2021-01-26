@@ -46,6 +46,16 @@ namespace Coinbase.BalanceMonitor.Service
                     continue;
                 }
 
+                if (balance > AppSettings.Instance.BalanceHigh)
+                {
+                    AppSettings.Instance.BalanceHigh = balance;
+                }
+
+                if (balance < AppSettings.Instance.BalanceLow)
+                {
+                    AppSettings.Instance.BalanceLow = balance;
+                }
+
                 if (balance > _previousBalance)
                 {
                     Up(balance);
