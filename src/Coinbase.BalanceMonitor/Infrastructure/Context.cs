@@ -38,16 +38,20 @@ namespace Coinbase.BalanceMonitor.Infrastructure
         {
             _icon.Icon = Icons.up;
 
-            // ReSharper disable once LocalizableElement
-            _icon.Text = $"£{AppSettings.Instance.BalanceHigh / 100m:N2}\r\n£{balance / 100m:N2} at {DateTime.Now:HH:mm}{Difference(balance)}\r\n£{AppSettings.Instance.BalanceLow / 100m:N2}";
+            PopulateTooltip(balance);
         }
 
         private void Down(int balance)
         {
             _icon.Icon = Icons.down;
 
+            PopulateTooltip(balance);
+        }
+
+        private void PopulateTooltip(int balance)
+        {
             // ReSharper disable once LocalizableElement
-            _icon.Text = $"£{AppSettings.Instance.BalanceHigh / 100m:N2}\r\n£{balance / 100m:N2} at {DateTime.Now:HH:mm}{Difference(balance)}\r\n£{AppSettings.Instance.BalanceLow / 100m:N2}";
+            _icon.Text = $"{DateTime.Now:HH:mm}\r\n\r\n🡅 £{AppSettings.Instance.BalanceHigh / 100m:N2}\r\n🡆 £{balance / 100m:N2}{Difference(balance)}\r\n🡇 £{AppSettings.Instance.BalanceLow / 100m:N2}";
         }
 
         private string Difference(int balance)
