@@ -63,7 +63,7 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
             _previousBalance = balance;
 
-            return $" {(difference < 0 ? '-' : '+')}{difference / 100m:N2}";
+            return $" {(difference < 0 ? string.Empty : '+')}{difference / 100m:N2}";
         }
 
         private void Exit()
