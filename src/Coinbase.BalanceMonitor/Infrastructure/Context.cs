@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
+using Coinbase.BalanceMonitor.Forms;
 using Coinbase.BalanceMonitor.Resources;
 using Coinbase.BalanceMonitor.Service;
 
@@ -7,11 +10,17 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 {
     public class Context : ApplicationContext
     {
+        private const int HistoryWidth = 500;
+        private const int HistoryHeight = 200;
+
         private readonly NotifyIcon _icon;
 
+        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable - don't want it to go out of scope
         private readonly CoinbasePoller _poller;
 
-        private int _previousBalance = 0;
+        private int _previousBalance;
+
+        private Queue<int> _history;
 
         public Context()
         {
@@ -31,7 +40,34 @@ namespace Coinbase.BalanceMonitor.Infrastructure
                           Down = Down
                       };
 
+            _icon.Click += IconClicked;
+
+            _history = new Queue<int>();
+
             _poller.StartPolling();
+        }
+
+        private void IconClicked(object sender, EventArgs e)
+        {
+            if (((MouseEventArgs) e).Button != MouseButtons.Left)
+            {
+                return;
+            }
+
+            var form = new History
+                       {
+                           Width = HistoryWidth, 
+                           Height = HistoryHeight
+                       };
+
+            form.Left = Screen.PrimaryScreen.WorkingArea.Width - form.Width;
+            form.Top = Screen.PrimaryScreen.WorkingArea.Height - form.Height;
+
+            form.SetData(_history.ToList());
+
+            form.Show();
+
+            form.Activate();
         }
 
         private void Up(int balance)
@@ -50,6 +86,13 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         private void PopulateTooltip(int balance)
         {
+            _history.Enqueue(balance);
+
+            if (_history.Count > HistoryWidth)
+            {
+                _history.Dequeue();
+            }
+            
             // ReSharper disable once LocalizableElement
             _icon.Text = $"{DateTime.Now:HH:mm}\r\n\r\n🡅 £{AppSettings.Instance.BalanceHigh / 100m:N2}\r\n🡆 £{balance / 100m:N2}{Difference(balance)}\r\n🡇 £{AppSettings.Instance.BalanceLow / 100m:N2}";
         }
