@@ -9,9 +9,10 @@ namespace Coinbase.BalanceMonitor.Infrastructure
     {
         private readonly NotifyIcon _icon;
 
+        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable - don't want to go out of scope.
         private readonly CoinbasePoller _poller;
 
-        private int _previousBalance = 0;
+        private int _previousBalance;
 
         public Context()
         {
@@ -36,14 +37,18 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         private void Up(int balance)
         {
-            _icon.Icon = Icons.up;
+            _icon.Icon = balance > AppSettings.Instance.BalanceHigh
+                ? Icons.up_green 
+                : Icons.up;
 
             PopulateTooltip(balance);
         }
 
         private void Down(int balance)
         {
-            _icon.Icon = Icons.down;
+            _icon.Icon = balance < AppSettings.Instance.BalanceLow
+                ? Icons.down_red
+                : Icons.down;
 
             PopulateTooltip(balance);
         }

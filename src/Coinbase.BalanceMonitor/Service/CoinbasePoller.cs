@@ -39,11 +39,32 @@ namespace Coinbase.BalanceMonitor.Service
         {
             while (true)
             {
-                var balance = await _client.GetAccountBalance();
+                int balance;
+
+                try
+                {
+                    balance = await _client.GetAccountBalance();
+                }
+                catch
+                {
+
+                    Thread.Sleep(TimeSpan.FromMinutes(AppSettings.Instance.PollIntervalMinutes));
+
+                    continue;
+                }
 
                 if (balance == _previousBalance)
                 {
                     continue;
+                }
+
+                if (balance > _previousBalance)
+                {
+                    Up(balance);
+                }
+                else
+                {
+                    Down(balance);
                 }
 
                 if (balance > AppSettings.Instance.BalanceHigh)
@@ -54,15 +75,6 @@ namespace Coinbase.BalanceMonitor.Service
                 if (balance < AppSettings.Instance.BalanceLow)
                 {
                     AppSettings.Instance.BalanceLow = balance;
-                }
-
-                if (balance > _previousBalance)
-                {
-                    Up(balance);
-                }
-                else
-                {
-                    Down(balance);
                 }
 
                 _previousBalance = balance;
