@@ -16,6 +16,10 @@ In Coinbase, create an API key with the permission `wallet:accounts:read`.
 
 Put the API key and secret in `appSettings.json` and optionally change `PollIntervalMinutes` to a value of your liking.
 
+### Excel Spreadsheet Integration
+
+The app can also optionally update a cell in a spreadsheet with your current balance (if you're nerd like me who tracks finances in a spreadsheet). Simply put the path to the spreadsheet in the `ExcelFilePath` app setting and put the cell in `ExcelCell`.
+
 ## Installation
 
 I won't provide binaries for this as given the sensitive nature of Coinbase API keys, I think source code transparency is important, so you'll need to build it yourself. VS 2019 Community will do just fine.
