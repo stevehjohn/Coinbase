@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Forms;
 using Coinbase.BalanceMonitor.Resources;
 using Coinbase.BalanceMonitor.Service;
+using OfficeOpenXml;
 
 namespace Coinbase.BalanceMonitor.Infrastructure
 {
@@ -57,6 +59,8 @@ namespace Coinbase.BalanceMonitor.Infrastructure
         {
             // ReSharper disable once LocalizableElement
             _icon.Text = $"{DateTime.Now:HH:mm}\r\n\r\n🡅 £{AppSettings.Instance.BalanceHigh / 100m:N2}\r\n🡆 £{balance / 100m:N2}{Difference(balance)}\r\n🡇 £{AppSettings.Instance.BalanceLow / 100m:N2}";
+
+            UpdateExcel(balance);
         }
 
         private string Difference(int balance)
@@ -73,6 +77,26 @@ namespace Coinbase.BalanceMonitor.Infrastructure
             _previousBalance = balance;
 
             return $" {(difference < 0 ? string.Empty : '+')}{difference / 100m:N2}";
+        }
+
+        private void UpdateExcel(int balance)
+        {
+            if (string.IsNullOrWhiteSpace(AppSettings.Instance.ExcelFilePath) || string.IsNullOrWhiteSpace(AppSettings.Instance.ExcelCell))
+            {
+                return;
+            }
+
+            using var package = new ExcelPackage(new FileInfo(AppSettings.Instance.ExcelFilePath));
+
+            var sheet = package.Workbook.Worksheets[0];
+
+            var cell = sheet.Cells[AppSettings.Instance.ExcelCell];
+
+            cell.Style.Numberformat.Format = "£#,###,##0.00";
+
+            cell.Value = balance / 100m;
+
+            package.Save();
         }
 
         private void Exit()
