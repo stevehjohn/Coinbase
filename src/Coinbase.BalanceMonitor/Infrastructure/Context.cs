@@ -79,7 +79,7 @@ namespace Coinbase.BalanceMonitor.Infrastructure
             return $" {(difference < 0 ? string.Empty : '+')}{difference / 100m:N2}";
         }
 
-        private void UpdateExcel(int balance)
+        private static void UpdateExcel(int balance)
         {
             if (string.IsNullOrWhiteSpace(AppSettings.Instance.ExcelFilePath) || string.IsNullOrWhiteSpace(AppSettings.Instance.ExcelCell))
             {
@@ -100,9 +100,9 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
                 package.Save();
             }
-            catch
+            catch (Exception exception)
             {
-                // File is probably open
+                Logger.LogError($"An error occurred updating Excel spreadsheet {AppSettings.Instance.ExcelFilePath}", exception);
             } 
         }
 

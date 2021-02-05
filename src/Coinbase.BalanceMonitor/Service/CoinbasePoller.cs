@@ -45,8 +45,9 @@ namespace Coinbase.BalanceMonitor.Service
                 {
                     balance = await _client.GetAccountBalance();
                 }
-                catch
+                catch (Exception exception)
                 {
+                    Logger.LogError("An error occurred polling the Coinbase API", exception);
 
                     Thread.Sleep(TimeSpan.FromMinutes(AppSettings.Instance.PollIntervalMinutes));
 
