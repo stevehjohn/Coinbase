@@ -86,17 +86,24 @@ namespace Coinbase.BalanceMonitor.Infrastructure
                 return;
             }
 
-            using var package = new ExcelPackage(new FileInfo(AppSettings.Instance.ExcelFilePath));
+            try
+            {
+                using var package = new ExcelPackage(new FileInfo(AppSettings.Instance.ExcelFilePath));
 
-            var sheet = package.Workbook.Worksheets[0];
+                var sheet = package.Workbook.Worksheets[0];
 
-            var cell = sheet.Cells[AppSettings.Instance.ExcelCell];
+                var cell = sheet.Cells[AppSettings.Instance.ExcelCell];
 
-            cell.Style.Numberformat.Format = "£#,###,##0.00";
+                cell.Style.Numberformat.Format = "£#,###,##0.00";
 
-            cell.Value = balance / 100m;
+                cell.Value = balance / 100m;
 
-            package.Save();
+                package.Save();
+            }
+            catch
+            {
+                // File is probably open
+            } 
         }
 
         private void Exit()
