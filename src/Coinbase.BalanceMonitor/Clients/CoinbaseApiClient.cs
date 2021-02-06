@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Coinbase.BalanceMonitor.Infrastructure;
 using Coinbase.BalanceMonitor.Models;
-using Coinbase.BalanceMonitor.Models.ApiResponses;
+using Coinbase.BalanceMonitor.Models.CoinbaseApiResponses;
 
 namespace Coinbase.BalanceMonitor.Clients
 {
@@ -21,7 +21,7 @@ namespace Coinbase.BalanceMonitor.Clients
         {
             _client = new HttpClient
                       {
-                          BaseAddress = new Uri(AppSettings.Instance.ApiUri)
+                          BaseAddress = new Uri(AppSettings.Instance.CoinbaseApiUri)
                       };
 
             _client.DefaultRequestHeaders.Add("CB-ACCESS-KEY", AppSettings.Instance.ApiKey);

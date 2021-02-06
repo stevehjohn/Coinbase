@@ -10,7 +10,11 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         public string ApiSecret { get; set; }
 
-        public string ApiUri { get; set; }
+        public string Passphrase { get; set; }
+
+        public string CoinbaseApiUri { get; set; }
+
+        public string CoinbaseProApiUri { get; set; }
 
         public int PollIntervalMinutes { get; set; }
 

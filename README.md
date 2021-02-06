@@ -12,9 +12,19 @@ You configure a poll interval and the app will show an up or down icon in the sy
 
 ## Usage
 
+In `appSettings.json` set `PollIntervalMinutes` to a value of your liking.
+
+### Coinbase
+
 In Coinbase, create an API key with the permission `wallet:accounts:read`.
 
-Put the API key and secret in `appSettings.json` and optionally change `PollIntervalMinutes` to a value of your liking.
+Set `ApiKey` and `ApiSecret` in `appSettings.json` with the values obtained from Coinbase. Ensure the value of `ApiClient` is `CoinbaseApiClient`.
+
+### Coinbase Pro
+
+In Coinbase Pro, create an API key with `View` permissions.
+
+Set `ApiKey`, `ApiSecret` and `Passphrase` in `appSettings.json` with the values obtained from Coinbase Pro. Ensure the value of `ApiClient` is `CoinbaseProApiClient`.
 
 ### Excel Spreadsheet Integration
 
