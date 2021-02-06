@@ -6,9 +6,9 @@ using Coinbase.BalanceMonitor.Infrastructure;
 
 namespace Coinbase.BalanceMonitor.Service
 {
-    public class CoinbasePoller
+    public class CryptoApiPoller
     {
-        private readonly CoinbaseApiClient _client;
+        private readonly ICryptoApiClient _client;
         
         private int _previousBalance;
 
@@ -18,9 +18,10 @@ namespace Coinbase.BalanceMonitor.Service
 
         public Action<int> Down { set; private get; }
 
-        public CoinbasePoller()
+        public CryptoApiPoller()
         {
-            _client = new CoinbaseApiClient();
+            // ReSharper disable once AssignNullToNotNullAttribute
+            _client = (ICryptoApiClient) Activator.CreateInstance(Type.GetType($"Coinbase.BalanceMonitor.Clients.{AppSettings.Instance.ApiClient}"));
 
             _previousBalance = AppSettings.Instance.PreviousBalance;
         }

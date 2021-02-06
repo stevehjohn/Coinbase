@@ -12,7 +12,8 @@ using Coinbase.BalanceMonitor.Models.ApiResponses;
 
 namespace Coinbase.BalanceMonitor.Clients
 {
-    public class CoinbaseApiClient
+    // ReSharper disable once UnusedMember.Global - Reflection instantiated
+    public class CoinbaseApiClient : ICryptoApiClient
     {
         private readonly HttpClient _client;
 

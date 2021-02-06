@@ -12,7 +12,7 @@ namespace Coinbase.BalanceMonitor.Infrastructure
         private readonly NotifyIcon _icon;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable - don't want to go out of scope.
-        private readonly CoinbasePoller _poller;
+        private readonly CryptoApiPoller _poller;
 
         private int _previousBalance;
 
@@ -28,7 +28,7 @@ namespace Coinbase.BalanceMonitor.Infrastructure
                         Visible = true
                     };
 
-            _poller = new CoinbasePoller
+            _poller = new CryptoApiPoller
                       {
                           Up = Up,
                           Down = Down
