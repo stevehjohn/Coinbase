@@ -57,8 +57,10 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         private void PopulateTooltip(int balance)
         {
+            var symbol = AppSettings.Instance.CurrencySymbol;
+
             // ReSharper disable once LocalizableElement
-            _icon.Text = $"{DateTime.Now:HH:mm}\r\n\r\n🡅 £{AppSettings.Instance.BalanceHigh / 100m:N2}\r\n🡆 £{balance / 100m:N2}{Difference(balance)}\r\n🡇 £{AppSettings.Instance.BalanceLow / 100m:N2}";
+            _icon.Text = $"{DateTime.Now:HH:mm}\r\n\r\n🡅 {symbol}{AppSettings.Instance.BalanceHigh / 100m:N2}\r\n🡆 {symbol}{balance / 100m:N2}{Difference(balance)}\r\n🡇 {symbol}{AppSettings.Instance.BalanceLow / 100m:N2}";
 
             UpdateExcel(balance);
         }

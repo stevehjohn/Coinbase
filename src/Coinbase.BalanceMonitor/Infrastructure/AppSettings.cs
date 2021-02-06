@@ -30,6 +30,10 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         public string ApiClient { get; set; }
 
+        public string FiatCurrency { get; set; }
+
+        public string CurrencySymbol { get; set; }
+
         public static AppSettings Instance => Lazy.Value;
 
         private static readonly Lazy<AppSettings> Lazy = new(GetAppSettings);

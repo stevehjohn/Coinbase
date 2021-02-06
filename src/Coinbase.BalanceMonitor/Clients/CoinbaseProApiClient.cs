@@ -33,23 +33,48 @@ namespace Coinbase.BalanceMonitor.Clients
         {
             var coinBalances = await GetCoinBalances();
 
+            coinBalances.Add(new CoinBalance { Balance = 1, CoinType = "BTC" });
+
+            var exchangeRates = await GetExchangeRates(coinBalances);
+
             var balance = 0m;
 
             foreach (var coinBalance in coinBalances)
             {
                 var rate = exchangeRates[coinBalance.CoinType];
 
-                balance += coinBalance.Balance / rate;
+                balance += coinBalance.Balance * rate;
             }
 
             return (int) Math.Floor(balance * 100);
+        }
+
+        private async Task<Dictionary<string, decimal>> GetExchangeRates(List<CoinBalance> balances)
+        {
+            var rates = new Dictionary<string, decimal>();
+
+            foreach (var balance in balances)
+            {
+                var message = new HttpRequestMessage(HttpMethod.Get, $"/products/{balance.CoinType}-{AppSettings.Instance.FiatCurrency}/ticker");
+
+                var response = await _client.SendAsync(message);
+
+                var stringData = await response.Content.ReadAsStringAsync();
+
+                var ticker = JsonSerializer.Deserialize<Ticker>(stringData);
+
+                // ReSharper disable once PossibleNullReferenceException
+                rates.Add(balance.CoinType, decimal.Parse(ticker.Price));
+            }
+
+            return rates;
         }
 
         private async Task<List<CoinBalance>> GetCoinBalances()
         {
             var balances = new List<CoinBalance>();
 
-            var message = new HttpRequestMessage(HttpMethod.Get, "accounts");
+            var message = new HttpRequestMessage(HttpMethod.Get, "/accounts");
 
             AddRequestHeaders(message);
 
@@ -83,7 +108,7 @@ namespace Coinbase.BalanceMonitor.Clients
             var timestamp = $"{(long) DateTime.UtcNow.Subtract(DateTime.UnixEpoch).TotalSeconds}";
 
             // ReSharper disable once PossibleNullReferenceException
-            var toSign = $"{timestamp}{message.Method.ToString().ToUpper()}/{message.RequestUri.OriginalString}{body ?? string.Empty}";
+            var toSign = $"{timestamp}{message.Method.ToString().ToUpper()}{message.RequestUri.OriginalString}{body ?? string.Empty}";
 
             var bytes = Encoding.ASCII.GetBytes(toSign);
 

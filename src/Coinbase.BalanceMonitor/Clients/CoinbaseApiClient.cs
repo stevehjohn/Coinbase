@@ -86,7 +86,7 @@ namespace Coinbase.BalanceMonitor.Clients
 
         private async Task<Dictionary<string, decimal>> GetExchangeRates()
         {
-            var message = new HttpRequestMessage(HttpMethod.Get, "/v2/exchange-rates?currency=GBP");
+            var message = new HttpRequestMessage(HttpMethod.Get, $"/v2/exchange-rates?currency={AppSettings.Instance.FiatCurrency}");
 
             var response = await _client.SendAsync(message);
 
