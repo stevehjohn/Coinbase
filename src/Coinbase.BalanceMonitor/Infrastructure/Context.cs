@@ -31,7 +31,8 @@ namespace Coinbase.BalanceMonitor.Infrastructure
             _poller = new CryptoApiPoller
                       {
                           Up = Up,
-                          Down = Down
+                          Down = Down,
+                          Same = Same
                       };
 
             _poller.StartPolling();
@@ -51,6 +52,13 @@ namespace Coinbase.BalanceMonitor.Infrastructure
             _icon.Icon = balance < AppSettings.Instance.BalanceLow
                 ? Icons.down_red
                 : Icons.down;
+
+            PopulateTooltip(balance);
+        }
+
+        private void Same(int balance)
+        {
+            _icon.Icon = Icons.right;
 
             PopulateTooltip(balance);
         }

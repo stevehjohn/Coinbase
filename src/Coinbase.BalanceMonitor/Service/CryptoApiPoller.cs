@@ -18,6 +18,8 @@ namespace Coinbase.BalanceMonitor.Service
 
         public Action<int> Down { set; private get; }
 
+        public Action<int> Same { set; private get; }
+
         public CryptoApiPoller()
         {
             // ReSharper disable once AssignNullToNotNullAttribute
@@ -57,6 +59,8 @@ namespace Coinbase.BalanceMonitor.Service
 
                 if (balance == _previousBalance)
                 {
+                    Same(balance);
+
                     Thread.Sleep(TimeSpan.FromMinutes(AppSettings.Instance.PollIntervalMinutes));
 
                     continue;
