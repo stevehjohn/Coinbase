@@ -33,7 +33,7 @@ The app can also optionally update a cell in a spreadsheet with your current bal
 
 ## Installation
 
-I won't provide binaries for this as given the sensitive nature of Coinbase API keys, I think source code transparency is important, so you'll need to build it yourself. VS 2019 Community will do just fine.
+I won't provide binaries for this as given the sensitive nature of API keys, I think source code transparency is important, so you'll need to build it yourself. [VS 2019 Community](https://visualstudio.microsoft.com/vs/community/) will do just fine, or `dotnet build` from the [SDK](https://dotnet.microsoft.com/download) if you're a command line warrior.
 
 ## Auto Start
 
