@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Coinbase.BalanceMonitor.Infrastructure;
+using Coinbase.BalanceMonitor.Models;
+using Coinbase.BalanceMonitor.Models.CoinbaseProApiResponses;
 
 namespace Coinbase.BalanceMonitor.Clients
 {
@@ -20,12 +24,31 @@ namespace Coinbase.BalanceMonitor.Clients
                       };
 
             _client.DefaultRequestHeaders.Add("User-Agent", "CoinbaseProApiClient");
+            _client.DefaultRequestHeaders.Add("Accept", "application/json");
             _client.DefaultRequestHeaders.Add("CB-ACCESS-KEY", AppSettings.Instance.ApiKey);
             _client.DefaultRequestHeaders.Add("CB-ACCESS-PASSPHRASE", AppSettings.Instance.Passphrase);
         }
 
         public async Task<int> GetAccountBalance()
         {
+            var coinBalances = await GetCoinBalances();
+
+            var balance = 0m;
+
+            foreach (var coinBalance in coinBalances)
+            {
+                var rate = exchangeRates[coinBalance.CoinType];
+
+                balance += coinBalance.Balance / rate;
+            }
+
+            return (int) Math.Floor(balance * 100);
+        }
+
+        private async Task<List<CoinBalance>> GetCoinBalances()
+        {
+            var balances = new List<CoinBalance>();
+
             var message = new HttpRequestMessage(HttpMethod.Get, "accounts");
 
             AddRequestHeaders(message);
@@ -34,15 +57,33 @@ namespace Coinbase.BalanceMonitor.Clients
 
             var stringData = await response.Content.ReadAsStringAsync();
 
-            return 0;
+            var accounts = JsonSerializer.Deserialize<Account[]>(stringData);
+
+            // ReSharper disable once PossibleNullReferenceException
+            foreach (var account in accounts)
+            {
+                var balance = decimal.Parse(account.Balance);
+
+                if (balance > 0)
+                {
+                    balances.Add(new CoinBalance
+                                 {
+                                     Balance = balance,
+                                     CoinType = account.Currency
+                                 });
+                }
+            }
+
+            return balances;
         }
 
         private static void AddRequestHeaders(HttpRequestMessage message, string body = null)
         {
+
             var timestamp = $"{(long) DateTime.UtcNow.Subtract(DateTime.UnixEpoch).TotalSeconds}";
 
             // ReSharper disable once PossibleNullReferenceException
-            var toSign = $"{timestamp}{message.Method.ToString().ToUpper()}{message.RequestUri.OriginalString}{body ?? string.Empty}";
+            var toSign = $"{timestamp}{message.Method.ToString().ToUpper()}/{message.RequestUri.OriginalString}{body ?? string.Empty}";
 
             var bytes = Encoding.ASCII.GetBytes(toSign);
 

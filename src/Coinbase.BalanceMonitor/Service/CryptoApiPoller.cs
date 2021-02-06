@@ -57,6 +57,8 @@ namespace Coinbase.BalanceMonitor.Service
 
                 if (balance == _previousBalance)
                 {
+                    Thread.Sleep(TimeSpan.FromMinutes(AppSettings.Instance.PollIntervalMinutes));
+
                     continue;
                 }
 
