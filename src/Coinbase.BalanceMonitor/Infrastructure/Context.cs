@@ -59,8 +59,12 @@ namespace Coinbase.BalanceMonitor.Infrastructure
         {
             var symbol = AppSettings.Instance.CurrencySymbol;
 
+            var low = AppSettings.Instance.BalanceLow == int.MaxValue
+                ? 0
+                : AppSettings.Instance.BalanceLow;
+
             // ReSharper disable once LocalizableElement
-            _icon.Text = $"{DateTime.Now:HH:mm}\r\n\r\n🡅 {symbol}{AppSettings.Instance.BalanceHigh / 100m:N2}\r\n🡆 {symbol}{balance / 100m:N2}{Difference(balance)}\r\n🡇 {symbol}{AppSettings.Instance.BalanceLow / 100m:N2}";
+            _icon.Text = $"{DateTime.Now:HH:mm}\r\n\r\n🡅 {symbol}{AppSettings.Instance.BalanceHigh / 100m:N2}\r\n🡆 {symbol}{balance / 100m:N2}{Difference(balance)}\r\n🡇 {symbol}{low / 100m:N2}";
 
             UpdateExcel(balance);
         }

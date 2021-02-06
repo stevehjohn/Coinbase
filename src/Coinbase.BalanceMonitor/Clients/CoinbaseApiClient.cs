@@ -31,6 +31,11 @@ namespace Coinbase.BalanceMonitor.Clients
         {
             var coinBalances = await GetCoinBalances();
 
+            if (coinBalances.Count == 0)
+            {
+                return 0;
+            }
+
             var exchangeRates = await GetExchangeRates();
 
             var balance = 0m;

@@ -33,7 +33,10 @@ namespace Coinbase.BalanceMonitor.Clients
         {
             var coinBalances = await GetCoinBalances();
 
-            coinBalances.Add(new CoinBalance { Balance = 1, CoinType = "BTC" });
+            if (coinBalances.Count == 0)
+            {
+                return 0;
+            }
 
             var exchangeRates = await GetExchangeRates(coinBalances);
 

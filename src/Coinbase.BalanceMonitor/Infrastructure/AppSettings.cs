@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Text.Json;
 
 namespace Coinbase.BalanceMonitor.Infrastructure
@@ -47,7 +48,7 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         private static AppSettings GetAppSettings()
         {
-            var json = File.ReadAllText("appSettings.json");
+            var json = File.ReadAllText("appSettings.json", Encoding.UTF8);
 
             var settings = JsonSerializer.Deserialize<AppSettings>(json);
 
