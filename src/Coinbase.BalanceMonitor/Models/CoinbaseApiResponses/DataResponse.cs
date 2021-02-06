@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Coinbase.BalanceMonitor.Models.ApiResponses
+namespace Coinbase.BalanceMonitor.Models.CoinbaseApiResponses
 {
     public class DataResponse<T>
     {

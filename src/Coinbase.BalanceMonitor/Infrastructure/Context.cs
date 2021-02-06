@@ -31,7 +31,8 @@ namespace Coinbase.BalanceMonitor.Infrastructure
             _poller = new CryptoApiPoller
                       {
                           Up = Up,
-                          Down = Down
+                          Down = Down,
+                          Same = Same
                       };
 
             _poller.StartPolling();
@@ -55,10 +56,23 @@ namespace Coinbase.BalanceMonitor.Infrastructure
             PopulateTooltip(balance);
         }
 
+        private void Same(int balance)
+        {
+            _icon.Icon = Icons.right;
+
+            PopulateTooltip(balance);
+        }
+
         private void PopulateTooltip(int balance)
         {
+            var symbol = AppSettings.Instance.CurrencySymbol;
+
+            var low = AppSettings.Instance.BalanceLow == int.MaxValue
+                ? 0
+                : AppSettings.Instance.BalanceLow;
+
             // ReSharper disable once LocalizableElement
-            _icon.Text = $"{DateTime.Now:HH:mm}\r\n\r\n🡅 £{AppSettings.Instance.BalanceHigh / 100m:N2}\r\n🡆 £{balance / 100m:N2}{Difference(balance)}\r\n🡇 £{AppSettings.Instance.BalanceLow / 100m:N2}";
+            _icon.Text = $"{DateTime.Now:HH:mm}\r\n\r\n🡅 {symbol}{AppSettings.Instance.BalanceHigh / 100m:N2}\r\n🡆 {symbol}{balance / 100m:N2}{Difference(balance)}\r\n🡇 {symbol}{low / 100m:N2}";
 
             UpdateExcel(balance);
         }

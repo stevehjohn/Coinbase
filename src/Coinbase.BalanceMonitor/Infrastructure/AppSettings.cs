@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Text.Json;
 
 namespace Coinbase.BalanceMonitor.Infrastructure
@@ -10,7 +11,11 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         public string ApiSecret { get; set; }
 
-        public string ApiUri { get; set; }
+        public string Passphrase { get; set; }
+
+        public string CoinbaseApiUri { get; set; }
+
+        public string CoinbaseProApiUri { get; set; }
 
         public int PollIntervalMinutes { get; set; }
 
@@ -26,6 +31,10 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         public string ApiClient { get; set; }
 
+        public string FiatCurrency { get; set; }
+
+        public string CurrencySymbol { get; set; }
+
         public static AppSettings Instance => Lazy.Value;
 
         private static readonly Lazy<AppSettings> Lazy = new(GetAppSettings);
@@ -39,7 +48,7 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         private static AppSettings GetAppSettings()
         {
-            var json = File.ReadAllText("appSettings.json");
+            var json = File.ReadAllText("appSettings.json", Encoding.UTF8);
 
             var settings = JsonSerializer.Deserialize<AppSettings>(json);
 

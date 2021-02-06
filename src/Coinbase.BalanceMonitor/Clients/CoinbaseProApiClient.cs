@@ -4,27 +4,29 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 using Coinbase.BalanceMonitor.Infrastructure;
 using Coinbase.BalanceMonitor.Models;
-using Coinbase.BalanceMonitor.Models.CoinbaseApiResponses;
+using Coinbase.BalanceMonitor.Models.CoinbaseProApiResponses;
 
 namespace Coinbase.BalanceMonitor.Clients
 {
     // ReSharper disable once UnusedMember.Global - Reflection instantiated
-    public class CoinbaseApiClient : ICryptoApiClient
+    public class CoinbaseProApiClient : ICryptoApiClient
     {
         private readonly HttpClient _client;
 
-        public CoinbaseApiClient()
+        public CoinbaseProApiClient()
         {
             _client = new HttpClient
                       {
-                          BaseAddress = new Uri(AppSettings.Instance.CoinbaseApiUri)
+                          BaseAddress = new Uri(AppSettings.Instance.CoinbaseProApiUri)
                       };
 
+            _client.DefaultRequestHeaders.Add("User-Agent", "CoinbaseProApiClient");
+            _client.DefaultRequestHeaders.Add("Accept", "application/json");
             _client.DefaultRequestHeaders.Add("CB-ACCESS-KEY", AppSettings.Instance.ApiKey);
+            _client.DefaultRequestHeaders.Add("CB-ACCESS-PASSPHRASE", AppSettings.Instance.Passphrase);
         }
 
         public async Task<int> GetAccountBalance()
@@ -36,7 +38,7 @@ namespace Coinbase.BalanceMonitor.Clients
                 return 0;
             }
 
-            var exchangeRates = await GetExchangeRates();
+            var exchangeRates = await GetExchangeRates(coinBalances);
 
             var balance = 0m;
 
@@ -44,74 +46,68 @@ namespace Coinbase.BalanceMonitor.Clients
             {
                 var rate = exchangeRates[coinBalance.CoinType];
 
-                balance += coinBalance.Balance / rate;
+                balance += coinBalance.Balance * rate;
             }
 
             return (int) Math.Floor(balance * 100);
+        }
+
+        private async Task<Dictionary<string, decimal>> GetExchangeRates(List<CoinBalance> balances)
+        {
+            var rates = new Dictionary<string, decimal>();
+
+            foreach (var balance in balances)
+            {
+                var message = new HttpRequestMessage(HttpMethod.Get, $"/products/{balance.CoinType}-{AppSettings.Instance.FiatCurrency}/ticker");
+
+                var response = await _client.SendAsync(message);
+
+                var stringData = await response.Content.ReadAsStringAsync();
+
+                var ticker = JsonSerializer.Deserialize<Ticker>(stringData);
+
+                // ReSharper disable once PossibleNullReferenceException
+                rates.Add(balance.CoinType, decimal.Parse(ticker.Price));
+            }
+
+            return rates;
         }
 
         private async Task<List<CoinBalance>> GetCoinBalances()
         {
             var balances = new List<CoinBalance>();
 
-            PaginatedResponse<Account> data = null;
+            var message = new HttpRequestMessage(HttpMethod.Get, "/accounts");
 
-            do
-            {
-                var message = new HttpRequestMessage(HttpMethod.Get, data?.Pagination?.NextUri ?? "/v2/accounts");
-
-                AddRequestHeaders(message);
-
-                var response = await _client.SendAsync(message);
-
-                var stringData = await response.Content.ReadAsStringAsync();
-
-                data = JsonSerializer.Deserialize<PaginatedResponse<Account>>(stringData);
-
-                // ReSharper disable once PossibleNullReferenceException
-                foreach (var account in data.Data)
-                {
-                    var balance = decimal.Parse(account.Balance.Amount);
-
-                    if (balance > 0)
-                    {
-                        balances.Add(new CoinBalance
-                                     {
-                                         Balance = balance,
-                                         CoinType = account.Balance.Currency
-                                     });
-                    }
-                }
-
-                Thread.Sleep(500);
-            } while (! string.IsNullOrWhiteSpace(data.Pagination.NextUri));
-
-            return balances;
-        }
-
-        private async Task<Dictionary<string, decimal>> GetExchangeRates()
-        {
-            var message = new HttpRequestMessage(HttpMethod.Get, $"/v2/exchange-rates?currency={AppSettings.Instance.FiatCurrency}");
+            AddRequestHeaders(message);
 
             var response = await _client.SendAsync(message);
 
             var stringData = await response.Content.ReadAsStringAsync();
 
-            var data = JsonSerializer.Deserialize<DataResponse<RatesDictionary>>(stringData);
-
-            var rates = new Dictionary<string, decimal>();
+            var accounts = JsonSerializer.Deserialize<Account[]>(stringData);
 
             // ReSharper disable once PossibleNullReferenceException
-            foreach (var rate in data.Data.Rates)
+            foreach (var account in accounts)
             {
-                rates.Add(rate.Key, decimal.Parse(rate.Value));
+                var balance = decimal.Parse(account.Balance);
+
+                if (balance > 0)
+                {
+                    balances.Add(new CoinBalance
+                                 {
+                                     Balance = balance,
+                                     CoinType = account.Currency
+                                 });
+                }
             }
 
-            return rates;
+            return balances;
         }
 
         private static void AddRequestHeaders(HttpRequestMessage message, string body = null)
         {
+
             var timestamp = $"{(long) DateTime.UtcNow.Subtract(DateTime.UnixEpoch).TotalSeconds}";
 
             // ReSharper disable once PossibleNullReferenceException
@@ -119,11 +115,11 @@ namespace Coinbase.BalanceMonitor.Clients
 
             var bytes = Encoding.ASCII.GetBytes(toSign);
 
-            using var hmacsha256 = new HMACSHA256(Encoding.UTF8.GetBytes(AppSettings.Instance.ApiSecret));
+            using var hmacsha256 = new HMACSHA256(Convert.FromBase64String(AppSettings.Instance.ApiSecret));
 
             var hash = hmacsha256.ComputeHash(bytes);
 
-            message.Headers.Add("CB-ACCESS-SIGN", BitConverter.ToString(hash).Replace("-", string.Empty).ToLower());
+            message.Headers.Add("CB-ACCESS-SIGN", Convert.ToBase64String(hash));
             message.Headers.Add("CB-ACCESS-TIMESTAMP", timestamp);
         }
     }
