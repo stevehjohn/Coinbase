@@ -6,7 +6,8 @@ Having fun with the Coinbase API.
 
 A very simple system tray app.
 
-You configure a poll interval and the app will show an up or down icon in the system tray depending on whether your portfolio has increased or decreased in value during that interval. Mouse hover over the icon and a tooltip will display your current balance.
+You configure a poll interval and the app will show an up or down icon in the system tray depending on whether your portfolio has increased or decreased in value during that interval. 
+Mouse hover over the icon and a tooltip will display your current balance between all time high and all time low balances.
 
 ![Tray screenshot](https://github.com/stevehjohn/Coinbase/blob/master/assets/tray-shot.png)
 
