@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using Coinbase.BalanceMonitor.Infrastructure;
 
@@ -27,30 +29,38 @@ namespace Coinbase.BalanceMonitor.Forms
 
         private void History_Shown(object sender, EventArgs e)
         {
+            if (_data.Count == 0)
+            {
+                return;
+            }
+            
             var graphics = CreateGraphics();
 
-            using var pen = new Pen(Color.White);
+            var min = _data.Min();
 
-            var previousY = _data[0] - AppSettings.Instance.BalanceLow;
-
-            var delta = AppSettings.Instance.BalanceHigh - AppSettings.Instance.BalanceLow;
+            var delta = _data.Max() - min;
 
             if (delta == 0)
             {
                 return;
             }
 
-            var xScale = (float) Width / _data.Count;
+            var yScale = (float) (Height - Constants.TextHeight * 2) / delta;
 
-            var yScale = (float) Height / delta;
+            var brush = new SolidBrush(Color.DarkSlateBlue);
 
-            for (var x = 0; x < _data.Count; x++)
+            var d = _data.Count - 1;
+
+            for (var x = Width; x > 0; x -= Constants.BarWidth + Constants.BarSpace)
             {
-                var y = _data[x] - AppSettings.Instance.BalanceLow;
+                graphics.FillRectangle(brush, x - Constants.BarWidth, Constants.TextHeight + ((Height - Constants.TextHeight * 2) - (_data[d] - min) * yScale), Constants.BarWidth, (_data[d] - min) * yScale);
 
-                graphics.DrawLine(pen, x * xScale, Height - previousY * yScale, (x + 1) * xScale, Height - y * yScale);
+                d--;
 
-                previousY = y;
+                if (d < 0)
+                {
+                    break;
+                }
             }
         }
     }

@@ -12,9 +12,6 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 {
     public class Context : ApplicationContext
     {
-        private const int HistoryWidth = 500;
-        private const int HistoryHeight = 200;
-
         private readonly NotifyIcon _icon;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable - don't want to go out of scope.
@@ -22,7 +19,7 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         private int _previousBalance;
 
-        private Queue<int> _history;
+        private readonly Queue<int> _history;
 
         public Context()
         {
@@ -59,8 +56,8 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
             var form = new History
                        {
-                           Width = HistoryWidth, 
-                           Height = HistoryHeight
+                           Width = Constants.HistoryWidth, 
+                           Height = Constants.HistoryHeight
                        };
 
             form.Left = Screen.PrimaryScreen.WorkingArea.Width - form.Width;
@@ -102,7 +99,7 @@ namespace Coinbase.BalanceMonitor.Infrastructure
         {
             _history.Enqueue(balance);
 
-            if (_history.Count > HistoryWidth)
+            if (_history.Count > Constants.HistoryWidth / (Constants.BarWidth + Constants.BarSpace))
             {
                 _history.Dequeue();
             }
