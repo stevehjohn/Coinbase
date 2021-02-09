@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
+using Coinbase.BalanceMonitor.Forms;
 using Coinbase.BalanceMonitor.Resources;
 using Coinbase.BalanceMonitor.Service;
 using OfficeOpenXml;
@@ -15,6 +18,8 @@ namespace Coinbase.BalanceMonitor.Infrastructure
         private readonly CryptoApiPoller _poller;
 
         private int _previousBalance;
+
+        private readonly Queue<int> _history;
 
         public Context()
         {
@@ -35,7 +40,34 @@ namespace Coinbase.BalanceMonitor.Infrastructure
                           Same = Same
                       };
 
+            _icon.Click += IconClicked;
+
+            _history = new Queue<int>();
+
             _poller.StartPolling();
+        }
+
+        private void IconClicked(object sender, EventArgs e)
+        {
+            if (((MouseEventArgs) e).Button != MouseButtons.Left)
+            {
+                return;
+            }
+
+            var form = new History
+                       {
+                           Width = Constants.HistoryWidth, 
+                           Height = Constants.HistoryHeight
+                       };
+
+            form.Left = Screen.PrimaryScreen.WorkingArea.Width - form.Width;
+            form.Top = Screen.PrimaryScreen.WorkingArea.Height - form.Height;
+
+            form.SetData(_history.ToList());
+
+            form.Show();
+
+            form.Activate();
         }
 
         private void Up(int balance)
@@ -65,6 +97,13 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         private void PopulateTooltip(int balance)
         {
+            _history.Enqueue(balance);
+
+            if (_history.Count > Constants.HistoryWidth / (Constants.BarWidth + Constants.BarSpace))
+            {
+                _history.Dequeue();
+            }
+            
             var symbol = AppSettings.Instance.CurrencySymbol;
 
             var low = AppSettings.Instance.BalanceLow == int.MaxValue
