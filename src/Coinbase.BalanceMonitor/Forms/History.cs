@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -55,7 +54,7 @@ namespace Coinbase.BalanceMonitor.Forms
 
             for (var x = Width; x > 0; x -= Constants.BarWidth + Constants.BarSpace)
             {
-                graphics.FillRectangle(brush, x - Constants.BarWidth, Constants.TextHeight + ((Height - Constants.TextHeight * 2) - (_data[d] - min) * yScale), Constants.BarWidth, (_data[d] - min) * yScale);
+                graphics.FillRectangle(brush, x - Constants.BarWidth, Constants.TextHeight + (Height - Constants.TextHeight * 2 - (_data[d] - min) * yScale), Constants.BarWidth, (_data[d] - min) * yScale);
 
                 d--;
 
