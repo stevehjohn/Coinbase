@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using Coinbase.BalanceMonitor.Forms;
+using System.IO;
+using System.Windows.Forms;
 using Coinbase.BalanceMonitor.Resources;
 using Coinbase.BalanceMonitor.Service;
+using OfficeOpenXml;
 
 namespace Coinbase.BalanceMonitor.Infrastructure
 {
@@ -15,8 +18,8 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         private readonly NotifyIcon _icon;
 
-        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable - don't want it to go out of scope
-        private readonly CoinbasePoller _poller;
+        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable - don't want to go out of scope.
+        private readonly CryptoApiPoller _poller;
 
         private int _previousBalance;
 
@@ -34,10 +37,11 @@ namespace Coinbase.BalanceMonitor.Infrastructure
                         Visible = true
                     };
 
-            _poller = new CoinbasePoller
+            _poller = new CryptoApiPoller
                       {
                           Up = Up,
-                          Down = Down
+                          Down = Down,
+                          Same = Same
                       };
 
             _icon.Click += IconClicked;
@@ -72,14 +76,25 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         private void Up(int balance)
         {
-            _icon.Icon = Icons.up;
+            _icon.Icon = balance > AppSettings.Instance.BalanceHigh
+                ? Icons.up_green 
+                : Icons.up;
 
             PopulateTooltip(balance);
         }
 
         private void Down(int balance)
         {
-            _icon.Icon = Icons.down;
+            _icon.Icon = balance < AppSettings.Instance.BalanceLow
+                ? Icons.down_red
+                : Icons.down;
+
+            PopulateTooltip(balance);
+        }
+
+        private void Same(int balance)
+        {
+            _icon.Icon = Icons.right;
 
             PopulateTooltip(balance);
         }
@@ -93,8 +108,16 @@ namespace Coinbase.BalanceMonitor.Infrastructure
                 _history.Dequeue();
             }
             
+            var symbol = AppSettings.Instance.CurrencySymbol;
+
+            var low = AppSettings.Instance.BalanceLow == int.MaxValue
+                ? 0
+                : AppSettings.Instance.BalanceLow;
+
             // ReSharper disable once LocalizableElement
-            _icon.Text = $"{DateTime.Now:HH:mm}\r\n\r\n🡅 £{AppSettings.Instance.BalanceHigh / 100m:N2}\r\n🡆 £{balance / 100m:N2}{Difference(balance)}\r\n🡇 £{AppSettings.Instance.BalanceLow / 100m:N2}";
+            _icon.Text = $"{DateTime.Now:HH:mm}\r\n\r\n🡅 {symbol}{AppSettings.Instance.BalanceHigh / 100m:N2}\r\n🡆 {symbol}{balance / 100m:N2}{Difference(balance)}\r\n🡇 {symbol}{low / 100m:N2}";
+
+            UpdateExcel(balance);
         }
 
         private string Difference(int balance)
@@ -111,6 +134,33 @@ namespace Coinbase.BalanceMonitor.Infrastructure
             _previousBalance = balance;
 
             return $" {(difference < 0 ? string.Empty : '+')}{difference / 100m:N2}";
+        }
+
+        private static void UpdateExcel(int balance)
+        {
+            if (string.IsNullOrWhiteSpace(AppSettings.Instance.ExcelFilePath) || string.IsNullOrWhiteSpace(AppSettings.Instance.ExcelCell))
+            {
+                return;
+            }
+
+            try
+            {
+                using var package = new ExcelPackage(new FileInfo(AppSettings.Instance.ExcelFilePath));
+
+                var sheet = package.Workbook.Worksheets[0];
+
+                var cell = sheet.Cells[AppSettings.Instance.ExcelCell];
+
+                cell.Style.Numberformat.Format = "£#,###,##0.00";
+
+                cell.Value = balance / 100m;
+
+                package.Save();
+            }
+            catch (Exception exception)
+            {
+                Logger.LogError($"An error occurred updating Excel spreadsheet {AppSettings.Instance.ExcelFilePath}", exception);
+            } 
         }
 
         private void Exit()
