@@ -65,11 +65,21 @@ namespace Coinbase.BalanceMonitor.Forms
                 }
             }
 
-            var font = new Font("Lucida Console", 10);
+            var font = new Font("Lucida Console", 8);
 
             brush = new SolidBrush(Color.White);
 
-            graphics.DrawString($"{AppSettings.Instance.CurrencySymbol}{max:N2}", font, brush, 0, 0);
+            var title = $"{AppSettings.Instance.CurrencySymbol}{max / 100m:N2}";
+
+            var size = graphics.MeasureString(title, font);
+
+            graphics.DrawString(title, font, brush, Width / 2f - size.Width / 2, 1);
+
+            title = $"{AppSettings.Instance.CurrencySymbol}{min / 100m:N2}";
+
+            size = graphics.MeasureString(title, font);
+
+            graphics.DrawString(title, font, brush, Width / 2f - size.Width / 2, Height - size.Height - 1);
         }
     }
 }
