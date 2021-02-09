@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Coinbase.BalanceMonitor.Forms;
-using System.IO;
-using System.Windows.Forms;
 using Coinbase.BalanceMonitor.Resources;
 using Coinbase.BalanceMonitor.Service;
 using OfficeOpenXml;
