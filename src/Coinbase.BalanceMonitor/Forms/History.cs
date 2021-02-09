@@ -38,7 +38,9 @@ namespace Coinbase.BalanceMonitor.Forms
 
             var min = _data.Min();
 
-            var delta = _data.Max() - min;
+            var max = _data.Max();
+
+            var delta = max - min;
 
             if (delta == 0)
             {
@@ -62,6 +64,12 @@ namespace Coinbase.BalanceMonitor.Forms
                     break;
                 }
             }
+
+            var font = new Font("Lucida Console", 10);
+
+            brush = new SolidBrush(Color.White);
+
+            graphics.DrawString($"{AppSettings.Instance.CurrencySymbol}{max:N2}", font, brush, 0, 0);
         }
     }
 }
