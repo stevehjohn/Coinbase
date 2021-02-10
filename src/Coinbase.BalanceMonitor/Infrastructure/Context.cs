@@ -44,6 +44,11 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
             _history = new Queue<int>();
 
+            foreach (var item in AppSettings.Instance.History)
+            {
+                _history.Enqueue(item);
+            }
+
             _poller.StartPolling();
         }
 
@@ -103,6 +108,10 @@ namespace Coinbase.BalanceMonitor.Infrastructure
             {
                 _history.Dequeue();
             }
+
+            AppSettings.Instance.History = _history.ToArray();
+
+            AppSettings.Instance.Save();
             
             var symbol = AppSettings.Instance.CurrencySymbol;
 

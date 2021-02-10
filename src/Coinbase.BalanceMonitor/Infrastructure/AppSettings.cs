@@ -35,6 +35,8 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         public string CurrencySymbol { get; set; }
 
+        public int[] History { get; set; }
+
         public static AppSettings Instance => Lazy.Value;
 
         private static readonly Lazy<AppSettings> Lazy = new(GetAppSettings);
