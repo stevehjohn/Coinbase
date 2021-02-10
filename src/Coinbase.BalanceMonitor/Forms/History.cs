@@ -11,13 +11,11 @@ namespace Coinbase.BalanceMonitor.Forms
     {
         private List<int> _data;
 
-        private readonly Graphics _graphics;
+        private Graphics _graphics;
 
         public History()
         {
             InitializeComponent();
-
-            _graphics = CreateGraphics();
         }
 
         private void History_Deactivate(object sender, EventArgs e)
@@ -36,7 +34,9 @@ namespace Coinbase.BalanceMonitor.Forms
             {
                 return;
             }
-            
+
+            _graphics ??= CreateGraphics();
+
             var min = _data.Min();
 
             var max = _data.Max();
