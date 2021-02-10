@@ -21,6 +21,8 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         private readonly Queue<int> _history;
 
+        private History _historyForm;
+
         public Context()
         {
             var contextMenu = new ContextMenuStrip();
@@ -59,20 +61,20 @@ namespace Coinbase.BalanceMonitor.Infrastructure
                 return;
             }
 
-            var form = new History
-                       {
-                           Width = Constants.HistoryWidth, 
-                           Height = Constants.HistoryHeight
-                       };
+            _historyForm = new History
+                           {
+                               Width = Constants.HistoryWidth,
+                               Height = Constants.HistoryHeight
+                           };
 
-            form.Left = Screen.PrimaryScreen.WorkingArea.Width - form.Width;
-            form.Top = Screen.PrimaryScreen.WorkingArea.Height - form.Height;
+            _historyForm.Left = Screen.PrimaryScreen.WorkingArea.Width - _historyForm.Width;
+            _historyForm.Top = Screen.PrimaryScreen.WorkingArea.Height - _historyForm.Height;
 
-            form.SetData(_history.ToList());
+            _historyForm.SetData(_history.ToList());
 
-            form.Show();
+            _historyForm.Show();
 
-            form.Activate();
+            _historyForm.Activate();
         }
 
         private void Up(int balance)
@@ -121,6 +123,8 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
             // ReSharper disable once LocalizableElement
             _icon.Text = $"{DateTime.Now:HH:mm}\r\n\r\n🡅 {symbol}{AppSettings.Instance.BalanceHigh / 100m:N2}\r\n🡆 {symbol}{balance / 100m:N2}{Difference(balance)}\r\n🡇 {symbol}{low / 100m:N2}";
+
+            _historyForm?.UpdateHistory();
 
             UpdateExcel(balance);
         }

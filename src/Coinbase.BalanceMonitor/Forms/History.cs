@@ -28,7 +28,7 @@ namespace Coinbase.BalanceMonitor.Forms
             _data = data;
         }
 
-        private void History_Shown(object sender, EventArgs e)
+        public void UpdateHistory()
         {
             if (_data.Count == 0)
             {
@@ -36,6 +36,8 @@ namespace Coinbase.BalanceMonitor.Forms
             }
 
             _graphics ??= CreateGraphics();
+
+            _graphics.Clear(Color.Black);
 
             var min = _data.Min();
 
@@ -92,6 +94,11 @@ namespace Coinbase.BalanceMonitor.Forms
             size = _graphics.MeasureString(title, font);
 
             _graphics.DrawString(title, font, brush, Width / 2f - size.Width / 2, Height - size.Height);
+        }
+
+        private void History_Shown(object sender, EventArgs e)
+        {
+            UpdateHistory();
         }
     }
 }
