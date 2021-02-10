@@ -124,7 +124,7 @@ namespace Coinbase.BalanceMonitor.Infrastructure
             // ReSharper disable once LocalizableElement
             _icon.Text = $"{DateTime.Now:HH:mm}\r\n\r\n🡅 {symbol}{AppSettings.Instance.BalanceHigh / 100m:N2}\r\n🡆 {symbol}{balance / 100m:N2}{Difference(balance)}\r\n🡇 {symbol}{low / 100m:N2}";
 
-            _historyForm.SetData(_history.ToList());
+            _historyForm?.SetData(_history.ToList());
 
             _historyForm?.UpdateHistory();
 
