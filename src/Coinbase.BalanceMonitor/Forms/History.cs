@@ -52,9 +52,16 @@ namespace Coinbase.BalanceMonitor.Forms
 
             var d = _data.Count - 1;
 
-            for (var x = Width; x > 0; x -= Constants.BarWidth + Constants.BarSpace)
+            for (var x = Width - 1; x > -Constants.BarWidth; x -= Constants.BarWidth + Constants.BarSpace)
             {
-                graphics.FillRectangle(brush, x - Constants.BarWidth, Constants.TextHeight + (Height - Constants.TextHeight * 2 - (_data[d] - min) * yScale), Constants.BarWidth, (_data[d] - min) * yScale);
+                var barHeight = (_data[d] - min) * yScale;
+
+                if (barHeight < 2)
+                {
+                    barHeight = 2;
+                }
+
+                graphics.FillRectangle(brush, x - Constants.BarWidth, Constants.TextHeight + (Height - Constants.TextHeight * 2 - barHeight), Constants.BarWidth, barHeight);
 
                 d--;
 
