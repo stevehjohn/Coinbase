@@ -11,9 +11,13 @@ namespace Coinbase.BalanceMonitor.Forms
     {
         private List<int> _data;
 
+        private readonly Graphics _graphics;
+
         public History()
         {
             InitializeComponent();
+
+            _graphics = CreateGraphics();
         }
 
         private void History_Deactivate(object sender, EventArgs e)
@@ -33,8 +37,6 @@ namespace Coinbase.BalanceMonitor.Forms
                 return;
             }
             
-            var graphics = CreateGraphics();
-
             var min = _data.Min();
 
             var max = _data.Max();
@@ -61,7 +63,7 @@ namespace Coinbase.BalanceMonitor.Forms
                     barHeight = 2;
                 }
 
-                graphics.FillRectangle(brush, x - Constants.BarWidth, Constants.TextHeight + (Height - Constants.TextHeight * 2 - barHeight), Constants.BarWidth, barHeight);
+                _graphics.FillRectangle(brush, x - Constants.BarWidth, Constants.TextHeight + (Height - Constants.TextHeight * 2 - barHeight), Constants.BarWidth, barHeight);
 
                 d--;
 
@@ -73,7 +75,7 @@ namespace Coinbase.BalanceMonitor.Forms
 
             var pen = new Pen(Color.White, 1);
 
-            graphics.DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
+            _graphics.DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
 
             var font = new Font("Lucida Console", 8);
 
@@ -81,15 +83,15 @@ namespace Coinbase.BalanceMonitor.Forms
 
             var title = $"{AppSettings.Instance.CurrencySymbol}{max / 100m:N2}";
 
-            var size = graphics.MeasureString(title, font);
+            var size = _graphics.MeasureString(title, font);
 
-            graphics.DrawString(title, font, brush, Width / 2f - size.Width / 2, 2);
+            _graphics.DrawString(title, font, brush, Width / 2f - size.Width / 2, 2);
 
             title = $"{AppSettings.Instance.CurrencySymbol}{min / 100m:N2}";
 
-            size = graphics.MeasureString(title, font);
+            size = _graphics.MeasureString(title, font);
 
-            graphics.DrawString(title, font, brush, Width / 2f - size.Width / 2, Height - size.Height - 1);
+            _graphics.DrawString(title, font, brush, Width / 2f - size.Width / 2, Height - size.Height);
         }
     }
 }

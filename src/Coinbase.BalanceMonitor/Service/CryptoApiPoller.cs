@@ -42,56 +42,63 @@ namespace Coinbase.BalanceMonitor.Service
         {
             while (true)
             {
-                int balance;
-
                 try
                 {
-                    balance = await _client.GetAccountBalance();
+                    int balance;
+
+                    try
+                    {
+                        balance = await _client.GetAccountBalance();
+                    }
+                    catch (Exception exception)
+                    {
+                        Logger.LogError("An error occurred polling the Coinbase API", exception);
+
+                        Thread.Sleep(TimeSpan.FromMinutes(AppSettings.Instance.PollIntervalMinutes));
+
+                        continue;
+                    }
+
+                    if (balance == _previousBalance)
+                    {
+                        Same(balance);
+
+                        Thread.Sleep(TimeSpan.FromMinutes(AppSettings.Instance.PollIntervalMinutes));
+
+                        continue;
+                    }
+
+                    if (balance > _previousBalance)
+                    {
+                        Up(balance);
+                    }
+                    else
+                    {
+                        Down(balance);
+                    }
+
+                    if (balance > AppSettings.Instance.BalanceHigh)
+                    {
+                        AppSettings.Instance.BalanceHigh = balance;
+                    }
+
+                    if (balance < AppSettings.Instance.BalanceLow)
+                    {
+                        AppSettings.Instance.BalanceLow = balance;
+                    }
+
+                    _previousBalance = balance;
+
+                    AppSettings.Instance.PreviousBalance = balance;
+
+                    AppSettings.Instance.Save();
+
+                    Thread.Sleep(TimeSpan.FromMinutes(AppSettings.Instance.PollIntervalMinutes));
                 }
                 catch (Exception exception)
                 {
-                    Logger.LogError("An error occurred polling the Coinbase API", exception);
-
-                    Thread.Sleep(TimeSpan.FromMinutes(AppSettings.Instance.PollIntervalMinutes));
-
-                    continue;
+                    Logger.LogError("An error occurred during polling.", exception);
                 }
-
-                if (balance == _previousBalance)
-                {
-                    Same(balance);
-
-                    Thread.Sleep(TimeSpan.FromMinutes(AppSettings.Instance.PollIntervalMinutes));
-
-                    continue;
-                }
-
-                if (balance > _previousBalance)
-                {
-                    Up(balance);
-                }
-                else
-                {
-                    Down(balance);
-                }
-
-                if (balance > AppSettings.Instance.BalanceHigh)
-                {
-                    AppSettings.Instance.BalanceHigh = balance;
-                }
-
-                if (balance < AppSettings.Instance.BalanceLow)
-                {
-                    AppSettings.Instance.BalanceLow = balance;
-                }
-
-                _previousBalance = balance;
-
-                AppSettings.Instance.PreviousBalance = balance;
-
-                AppSettings.Instance.Save();
-
-                Thread.Sleep(TimeSpan.FromMinutes(AppSettings.Instance.PollIntervalMinutes));
             }
             // ReSharper disable once FunctionNeverReturns
         }
