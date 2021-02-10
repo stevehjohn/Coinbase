@@ -11,8 +11,6 @@ namespace Coinbase.BalanceMonitor.Forms
     {
         private List<int> _data;
 
-        private Graphics _graphics;
-
         public History()
         {
             InitializeComponent();
@@ -35,9 +33,9 @@ namespace Coinbase.BalanceMonitor.Forms
                 return;
             }
 
-            _graphics ??= CreateGraphics();
+            using var graphics = CreateGraphics();
 
-            _graphics.Clear(Color.Black);
+            graphics.Clear(Color.Black);
 
             var min = _data.Min();
 
@@ -65,7 +63,7 @@ namespace Coinbase.BalanceMonitor.Forms
                     barHeight = 2;
                 }
 
-                _graphics.FillRectangle(brush, x - Constants.BarWidth, Constants.TextHeight + (Height - Constants.TextHeight * 2 - barHeight), Constants.BarWidth, barHeight);
+                graphics.FillRectangle(brush, x - Constants.BarWidth, Constants.TextHeight + (Height - Constants.TextHeight * 2 - barHeight), Constants.BarWidth, barHeight);
 
                 d--;
 
@@ -77,7 +75,7 @@ namespace Coinbase.BalanceMonitor.Forms
 
             var pen = new Pen(Color.White, 1);
 
-            _graphics.DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
+            graphics.DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
 
             var font = new Font("Lucida Console", 8);
 
@@ -85,15 +83,15 @@ namespace Coinbase.BalanceMonitor.Forms
 
             var title = $"{AppSettings.Instance.CurrencySymbol}{max / 100m:N2}";
 
-            var size = _graphics.MeasureString(title, font);
+            var size = graphics.MeasureString(title, font);
 
-            _graphics.DrawString(title, font, brush, Width / 2f - size.Width / 2, 2);
+            graphics.DrawString(title, font, brush, Width / 2f - size.Width / 2, 2);
 
             title = $"{AppSettings.Instance.CurrencySymbol}{min / 100m:N2}";
 
-            size = _graphics.MeasureString(title, font);
+            size = graphics.MeasureString(title, font);
 
-            _graphics.DrawString(title, font, brush, Width / 2f - size.Width / 2, Height - size.Height);
+            graphics.DrawString(title, font, brush, Width / 2f - size.Width / 2, Height - size.Height);
         }
 
         private void History_Shown(object sender, EventArgs e)
