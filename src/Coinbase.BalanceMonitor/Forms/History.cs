@@ -64,6 +64,10 @@ namespace Coinbase.BalanceMonitor.Forms
                 }
             }
 
+            var pen = new Pen(Color.White, 1);
+
+            graphics.DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
+
             var font = new Font("Lucida Console", 8);
 
             brush = new SolidBrush(Color.White);
@@ -72,7 +76,7 @@ namespace Coinbase.BalanceMonitor.Forms
 
             var size = graphics.MeasureString(title, font);
 
-            graphics.DrawString(title, font, brush, Width / 2f - size.Width / 2, 1);
+            graphics.DrawString(title, font, brush, Width / 2f - size.Width / 2, 2);
 
             title = $"{AppSettings.Instance.CurrencySymbol}{min / 100m:N2}";
 
