@@ -52,7 +52,7 @@ namespace Coinbase.BalanceMonitor.Forms
 
             var d = _data.Count - 1;
 
-            for (var x = Width - 1; x > -Constants.BarWidth; x -= Constants.BarWidth + Constants.BarSpace)
+            for (var x = Width - 2; x > -Constants.BarWidth; x -= Constants.BarWidth + Constants.BarSpace)
             {
                 var barHeight = (_data[d] - min) * yScale;
 

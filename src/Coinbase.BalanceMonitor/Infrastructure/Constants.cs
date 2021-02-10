@@ -2,7 +2,7 @@
 {
     public class Constants
     {
-        public const int HistoryWidth = 500;
+        public const int HistoryWidth = 503;
         public const int HistoryHeight = 200;
         public const int BarWidth = 4;
         public const int BarSpace = 1;
