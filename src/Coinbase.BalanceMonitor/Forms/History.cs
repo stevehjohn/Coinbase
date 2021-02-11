@@ -114,7 +114,7 @@ namespace Coinbase.BalanceMonitor.Forms
 
             pen = new Pen(Color.DimGray, 1);
 
-            _graphics.DrawLine(pen, 0, (float) currentY, Width - size.Width, (float) currentY);
+            _graphics.DrawLine(pen, 1, (float) currentY, Width - size.Width, (float) currentY);
 
         }
 
