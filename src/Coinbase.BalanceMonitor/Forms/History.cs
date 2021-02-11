@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Coinbase.BalanceMonitor.Infrastructure;
+using Microsoft.VisualBasic.Devices;
 
 namespace Coinbase.BalanceMonitor.Forms
 {
@@ -16,9 +17,14 @@ namespace Coinbase.BalanceMonitor.Forms
             InitializeComponent();
         }
 
+        private Point? _previousMouse;
+
         private void History_Deactivate(object sender, EventArgs e)
         {
-            Close();
+            if (! TopMost)
+            {
+                Close();
+            }
         }
 
         public void SetData(List<int> data)
@@ -111,12 +117,39 @@ namespace Coinbase.BalanceMonitor.Forms
             pen = new Pen(Color.DimGray, 1);
 
             graphics.DrawLine(pen, 1, (float) currentY, Width - size.Width, (float) currentY);
-
         }
 
         private void History_Shown(object sender, EventArgs e)
         {
+            Cursor = TopMost 
+                ? Cursors.SizeAll 
+                : Cursors.Default;
+
             UpdateHistory();
+        }
+
+        private void History_MouseDown(object sender, MouseEventArgs e)
+        {
+            _previousMouse = Cursor.Position;
+        }
+
+        private void History_MouseUp(object sender, MouseEventArgs e)
+        {
+            _previousMouse = null;
+        }
+
+        private void History_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (! _previousMouse.HasValue)
+            {
+                return;
+            }
+
+            Left += Cursor.Position.X - _previousMouse.Value.X;
+
+            Top += Cursor.Position.Y - _previousMouse.Value.Y;
+
+            _previousMouse = Cursor.Position;
         }
     }
 }

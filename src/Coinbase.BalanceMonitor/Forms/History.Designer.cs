@@ -47,6 +47,9 @@ namespace Coinbase.BalanceMonitor.Forms
             this.Text = "History";
             this.Deactivate += new System.EventHandler(this.History_Deactivate);
             this.Shown += new System.EventHandler(this.History_Shown);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.History_MouseDown);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.History_MouseMove);
+            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.History_MouseUp);
             this.ResumeLayout(false);
 
         }

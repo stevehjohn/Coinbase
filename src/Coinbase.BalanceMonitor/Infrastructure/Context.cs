@@ -23,15 +23,21 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         private History _historyForm;
 
+        private readonly ContextMenuStrip _contextMenu;
+
         public Context()
         {
-            var contextMenu = new ContextMenuStrip();
+            _contextMenu = new ContextMenuStrip();
 
-            contextMenu.Items.Add(new ToolStripMenuItem("Exit", null, (_, _) => Exit()));
+            _contextMenu.Items.Add(new ToolStripMenuItem("Float History Window", null, (_, _) => ToggleFloatHistory()) { Checked = AppSettings.Instance.FloatHistory });
+
+            _contextMenu.Items.Add(new ToolStripSeparator());
+
+            _contextMenu.Items.Add(new ToolStripMenuItem("Exit", null, (_, _) => Exit()));
 
             _icon = new NotifyIcon
                     {
-                        ContextMenuStrip = contextMenu,
+                        ContextMenuStrip = _contextMenu,
                         Visible = true
                     };
 
@@ -52,15 +58,50 @@ namespace Coinbase.BalanceMonitor.Infrastructure
             }
 
             _poller.StartPolling();
+
+            if (AppSettings.Instance.FloatHistory)
+            {
+                ShowHistory(true);
+            }
+        }
+
+        private void ToggleFloatHistory()
+        {
+            AppSettings.Instance.FloatHistory = ! AppSettings.Instance.FloatHistory;
+
+            AppSettings.Instance.Save();
+
+            ((ToolStripMenuItem) _contextMenu.Items[0]).Checked = AppSettings.Instance.FloatHistory;
+
+            if (! AppSettings.Instance.FloatHistory)
+            {
+                _historyForm.TopMost = false;
+
+                _historyForm.Close();
+            }
+            else
+            {
+                ShowHistory(true);
+            }
         }
 
         private void IconClicked(object sender, EventArgs e)
         {
+            if (AppSettings.Instance.FloatHistory)
+            {
+                return;
+            }
+
             if (((MouseEventArgs) e).Button != MouseButtons.Left)
             {
                 return;
             }
 
+            ShowHistory();
+        }
+
+        private void ShowHistory(bool topMost = false)
+        {
             _historyForm = new History
                            {
                                Width = Constants.HistoryWidth,
@@ -71,6 +112,8 @@ namespace Coinbase.BalanceMonitor.Infrastructure
             _historyForm.Top = Screen.PrimaryScreen.WorkingArea.Height - _historyForm.Height;
 
             _historyForm.SetData(_history.ToList());
+
+            _historyForm.TopMost = topMost;
 
             _historyForm.Show();
 
