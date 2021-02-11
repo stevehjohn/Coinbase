@@ -18,7 +18,10 @@ namespace Coinbase.BalanceMonitor.Forms
 
         private void History_Deactivate(object sender, EventArgs e)
         {
-            Close();
+            if (! TopMost)
+            {
+                Close();
+            }
         }
 
         public void SetData(List<int> data)

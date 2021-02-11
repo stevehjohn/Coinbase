@@ -37,6 +37,8 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
         public int[] History { get; set; }
 
+        public bool FloatHistory { get; set; }
+
         public static AppSettings Instance => Lazy.Value;
 
         private static readonly Lazy<AppSettings> Lazy = new(GetAppSettings);
