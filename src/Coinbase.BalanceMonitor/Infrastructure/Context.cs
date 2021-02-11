@@ -113,9 +113,9 @@ namespace Coinbase.BalanceMonitor.Infrastructure
 
             _historyForm.SetData(_history.ToList());
 
-            _historyForm.Show();
-
             _historyForm.TopMost = topMost;
+
+            _historyForm.Show();
 
             _historyForm.Activate();
         }
