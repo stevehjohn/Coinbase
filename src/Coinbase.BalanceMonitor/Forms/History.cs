@@ -58,6 +58,8 @@ namespace Coinbase.BalanceMonitor.Forms
 
             var d = _data.Count - 1;
 
+            float? currentY = null;
+
             for (var x = Width - 2; x > -Constants.BarWidth; x -= Constants.BarWidth + Constants.BarSpace)
             {
                 var barHeight = (_data[d] - min) * yScale;
@@ -68,6 +70,11 @@ namespace Coinbase.BalanceMonitor.Forms
                 }
 
                 _graphics.FillRectangle(brush, x - Constants.BarWidth, Constants.TextHeight + (Height - Constants.TextHeight * 2 - barHeight), Constants.BarWidth, barHeight);
+
+                if (currentY == null)
+                {
+                    currentY = Constants.TextHeight + (Height - Constants.TextHeight * 2 - barHeight);
+                }
 
                 d--;
 
@@ -96,6 +103,19 @@ namespace Coinbase.BalanceMonitor.Forms
             size = _graphics.MeasureString(title, font);
 
             _graphics.DrawString(title, font, brush, Width / 2f - size.Width / 2, Height - size.Height);
+
+            title = $"{AppSettings.Instance.CurrencySymbol}{_data.Last() / 100m:N2}";
+
+            size = _graphics.MeasureString(title, font);
+
+            // TODO: Sort magic constant +2
+            // ReSharper disable once PossibleInvalidOperationException
+            _graphics.DrawString(title, font, brush, Width - size.Width, (float) currentY - size.Height / 2f + 2);
+
+            pen = new Pen(Color.DimGray, 1);
+
+            _graphics.DrawLine(pen, 0, (float) currentY, Width - size.Width, (float) currentY);
+
         }
 
         private void History_Shown(object sender, EventArgs e)
