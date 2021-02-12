@@ -56,7 +56,9 @@ namespace Coinbase.BalanceMonitor.Forms
 
             var yScale = (float) (Height - Constants.TextHeight * 2) / delta;
 
-            var brush = new SolidBrush(Color.DarkSlateBlue);
+            var barBrush = new SolidBrush(Color.DarkSlateBlue);
+
+            var bgBrush = new SolidBrush(Color.FromArgb(30, 30, 30));
 
             var d = _data.Count - 1;
 
@@ -64,6 +66,13 @@ namespace Coinbase.BalanceMonitor.Forms
 
             for (var x = Width - 2; x > -Constants.BarWidth; x -= Constants.BarWidth + Constants.BarSpace)
             {
+                graphics.FillRectangle(bgBrush, x - Constants.BarWidth, Constants.TextHeight, Constants.BarWidth, Height - Constants.TextHeight * 2);
+
+                if (d < 0)
+                {
+                    continue;
+                }
+
                 var barHeight = (_data[d] - min) * yScale;
 
                 if (barHeight < 2)
@@ -71,7 +80,7 @@ namespace Coinbase.BalanceMonitor.Forms
                     barHeight = 2;
                 }
 
-                graphics.FillRectangle(brush, x - Constants.BarWidth, Constants.TextHeight + (Height - Constants.TextHeight * 2 - barHeight), Constants.BarWidth, barHeight);
+                graphics.FillRectangle(barBrush, x - Constants.BarWidth, Constants.TextHeight + (Height - Constants.TextHeight * 2 - barHeight), Constants.BarWidth, barHeight);
 
                 if (currentY == null)
                 {
@@ -79,11 +88,6 @@ namespace Coinbase.BalanceMonitor.Forms
                 }
 
                 d--;
-
-                if (d < 0)
-                {
-                    break;
-                }
             }
 
             var pen = new Pen(Color.White, 1);
@@ -92,19 +96,19 @@ namespace Coinbase.BalanceMonitor.Forms
 
             var font = new Font("Lucida Console", 8);
 
-            brush = new SolidBrush(Color.White);
+            var textBrush = new SolidBrush(Color.White);
 
             var title = $"{AppSettings.Instance.CurrencySymbol}{max / 100m:N2}";
 
             var size = graphics.MeasureString(title, font);
 
-            graphics.DrawString(title, font, brush, Width / 2f - size.Width / 2, 2);
+            graphics.DrawString(title, font, textBrush, Width / 2f - size.Width / 2, 2);
 
             title = $"{AppSettings.Instance.CurrencySymbol}{min / 100m:N2}";
 
             size = graphics.MeasureString(title, font);
 
-            graphics.DrawString(title, font, brush, Width / 2f - size.Width / 2, Height - size.Height);
+            graphics.DrawString(title, font, textBrush, Width / 2f - size.Width / 2, Height - size.Height);
 
             title = $"{AppSettings.Instance.CurrencySymbol}{_data.Last() / 100m:N2}";
 
@@ -112,7 +116,7 @@ namespace Coinbase.BalanceMonitor.Forms
 
             // TODO: Sort magic constant +2
             // ReSharper disable once PossibleInvalidOperationException
-            graphics.DrawString(title, font, brush, Width - size.Width, (float) currentY - size.Height / 2f + 2);
+            graphics.DrawString(title, font, textBrush, Width - size.Width, (float) currentY - size.Height / 2f + 2);
 
             pen = new Pen(Color.DimGray, 1);
 
