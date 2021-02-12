@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Coinbase.BalanceMonitor.Infrastructure;
-using Microsoft.VisualBasic.Devices;
 
 namespace Coinbase.BalanceMonitor.Forms
 {
