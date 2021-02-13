@@ -81,10 +81,7 @@ namespace Coinbase.BalanceMonitor.Forms
 
                 graphics.FillRectangle(barBrush, x - Constants.BarWidth, Constants.TextHeight + (Height - Constants.TextHeight * 2 - barHeight), Constants.BarWidth, barHeight);
 
-                if (currentY == null)
-                {
-                    currentY = Constants.TextHeight + (Height - Constants.TextHeight * 2 - barHeight);
-                }
+                currentY ??= Constants.TextHeight + (Height - Constants.TextHeight * 2 - barHeight);
 
                 d--;
             }
